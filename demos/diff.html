@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>dictate.js demo: diff</title>
+<link rel="stylesheet" type="text/css" href="css/demo.css"/>
+</head>
+
+<body>
+<span id="serverStatusBar" title="Number of available workers"></span>
+
+<div class="controls">
+<button
+	id="buttonStart"
+	onclick="startListening();"
+	title="Starts listening for speech, i.e. starts recording and transcribing.">Start</button>
+<button
+	id="buttonStop"
+	onclick="stopListening();"
+	title="Stops listening for speech. Speech captured so far will be recognized as if the user had stopped speaking at this point. Note that in the default case, this does not need to be called, as the speech endpointer will automatically stop the recognizer listening when it determines speech has completed.">Stopp</button>
+<button
+	id="buttonCancel"
+	onclick="cancel();"
+	title="Cancels the speech recognition.">Katkesta</button>
+</div>
+
+<div id="comparison">
+<textarea rows="8" cols="80" class="original">
+Kopeerige siia aknasse jupp eestikeelset teksti.
+Nüüd vajutage Start-nupule ning lugege tekst ette.
+Siis vajutage nupule "Stopp" ning oodake kuni
+kaob kiri "Transkribeerin...".
+Pidevalt näidatakse tekstikastide all nende vahelist erinevust:
+punane tekst viitab ülemise kasti sisule, roheline alumise kasti sisule
+ning taustavärvita tekst kuvab kastide ühisosa.
+</textarea>
+
+<div id="statusBar"></div>
+
+<textarea rows="8" cols="80" id="trans" class="changed">
+</textarea>
+
+<div class="controls">
+<button
+	onclick="diff();"
+	title="Diff the textareas">Erinevused</button>
+<button
+	onclick="clearTranscription();"
+	title="Clear the transcription">Reseti tekst</button>
+</div>
+
+<div class="diff">
+</div>
+</div>
+
+<hr/>
+
+<div class="controls">
+<button
+	onclick="init();"
+	title="Request access to the microphone">Init</button>
+
+<button
+	onclick="showConfig();"
+	title="Show the configuration of the Transcriber object">Config</button>
+
+<button
+	onclick="toggleLog();"
+	title="Show/hide log">Toggle log</button>
+
+<button
+	onclick="clearLog();"
+	title="Clear the log">Clear log</button>
+</div>
+
+<pre id="log">
+</pre>
+
+<script src="../lib/dictate.js"></script>
+<script src="../lib/recorder.js"></script>
+<script src="other/jquery-1.10.2.min.js"></script>
+<script src="other/diff_match_patch.js"></script>
+<script src="other/jquery.pretty-text-diff.min.js"></script>
+<script type="text/javascript">
+function diff() {
+	// Save the textarea val to its text, otherwise the manual updates
+	// are not visible to prettyTextDiff.
+	$(".original").text($(".original").val());
+	$(".changed").text($(".changed").val());
+
+	$("#comparison").prettyTextDiff({
+		cleanup: true
+	});
+}
+</script>
+<script src="demo.js"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Kaarel Kaljurand">
+
+    <title>dictate.js demo</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+
+    <link rel="stylesheet" type="text/css" href="css/demo.css">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="container">
+
+<span id="serverStatusBar" title="Number of available workers"></span>
+
+<div class="buttonsContainer">
+<span class="buttons">
+<button
+	id="buttonStart"
+	onclick="startListening();"
+	title="Starts listening for speech, i.e. starts recording and transcribing.">Start</button>
+<button
+	id="buttonStop"
+	onclick="stopListening();"
+	title="Stops listening for speech. Speech captured so far will be recognized as if the user had stopped speaking at this point. Note that in the default case, this does not need to be called, as the speech endpointer will automatically stop the recognizer listening when it determines speech has completed.">Stop</button>
+<button
+	id="buttonCancel"
+	onclick="cancel();"
+	title="Cancels the speech recognition.">Cancel</button>
+</span>
+</div>
+
+<textarea id="trans" rows="5" style="width:100%; margin-top:.5em">
+</textarea>
+
+<div id="statusBar"></div>
+
+<hr/>
+
+<pre id="log">
+</pre>
+
+
+    </div><!-- /.container -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="other/jquery-1.10.2.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+
+    <script src="../lib/dictate.js"></script>
+    <script src="../lib/recorder.js"></script>
+    <script src="demo.js"></script>
+  </body>
+</html>
