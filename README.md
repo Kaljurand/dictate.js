@@ -30,4 +30,6 @@ Some demos are available [here](http://kaljurand.github.io/dictate.js/).
 Browser support
 ---------------
 
-Known to work with Chromium 31.0.1650.63 on desktop.
+Known to work in
+  - Chromium 31.0.1650.63 on Ubuntu desktop
+  - Chrome Beta 32.0.1700.94 on Android
