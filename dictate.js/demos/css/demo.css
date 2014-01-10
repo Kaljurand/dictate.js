@@ -5,7 +5,7 @@
 	padding: 0;
 }
 #log {
-	font-size: 90%
+	font-size: 80%
 }
 #statusBar {
 	font-family: monospace;
@@ -16,15 +16,15 @@
 }
 #serverStatusBar {
 	position: fixed;
-	top: 0.5em;
-	right: 0.5em;
-	bottom: auto;
+	bottom: 0.4em;
+	right: 0.4em;
+	top: auto;
 	left: auto;
 	font-family: monospace;
 	padding: 0.2em 0.2em 0.2em 0.2em;
 }
 .highlight {
-	background-color: #f55;
+	color: red;
 }
 ins {
 	background-color: #c6ffc6;
