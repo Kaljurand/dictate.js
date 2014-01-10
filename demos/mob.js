@@ -12,11 +12,12 @@ var isConnected = false;
 var tt = new Transcription();
 
 var dictate = new Dictate({
+		server : $("#servers").val().split('|')[0],
+		serverStatus : $("#servers").val().split('|')[1],
 		recorderWorkerPath : '../lib/recorderWorker.js',
 		onReadyForSpeech : function() {
 			isConnected = true;
 			__message("READY FOR SPEECH");
-			__status("Listening...");
 			$("#buttonToggleListening").html('Stop');
 			$("#buttonToggleListening").addClass('highlight');
 			$("#buttonToggleListening").prop("disabled", false);
@@ -24,14 +25,12 @@ var dictate = new Dictate({
 		},
 		onEndOfSpeech : function() {
 			__message("END OF SPEECH");
-			__status("Still trancribing...");
 			$("#buttonToggleListening").html('Stopping...');
 			$("#buttonToggleListening").prop("disabled", true);
 		},
 		onEndOfSession : function() {
 			isConnected = false;
 			__message("END OF SESSION");
-			__status("");
 			$("#buttonToggleListening").html('Start');
 			$("#buttonToggleListening").removeClass('highlight');
 			$("#buttonToggleListening").prop("disabled", false);
@@ -57,9 +56,9 @@ var dictate = new Dictate({
 			__updateTranscript(tt.toString());
 		},
 		onError : function(code, data) {
-			__error(code, data);
-			__status("Error: " + code);
 			dictate.cancel();
+			__error(code, data);
+			// TODO: show error in the GUI
 		},
 		onEvent : function(code, data) {
 			__message(code, data);
@@ -73,10 +72,6 @@ function __message(code, data) {
 
 function __error(code, data) {
 	log.innerHTML = "ERR: " + code + ": " + (data || '') + "\n" + log.innerHTML;
-}
-
-function __status(msg) {
-	statusBar.innerHTML = msg;
 }
 
 function __serverStatus(msg) {
@@ -107,4 +102,12 @@ function clearTranscription() {
 
 $(document).ready(function() {
 	dictate.init();
+
+	$("#servers").change(function() {
+		dictate.cancel();
+		var servers = $("#servers").val().split('|');
+		dictate.setServer(servers[0]);
+		dictate.setServerStatus(servers[1]);
+	});
+
 });
