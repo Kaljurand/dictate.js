@@ -149,8 +149,7 @@ Resampler.prototype.initializeBuffers = function (generateTailCache) {
 }
 
 var recLength = 0,
-  recBuffersL = [],
-  recBuffersR = [],
+  recBuffers = [],
   sampleRate,
   resampler;
 
@@ -187,15 +186,12 @@ function init(config){
 }
 
 function record(inputBuffer){
-  recBuffersL.push(inputBuffer[0]);
-  recBuffersR.push(inputBuffer[1]);
+  recBuffers.push(inputBuffer[0]);
   recLength += inputBuffer[0].length;
 }
 
 function exportWAV(type){
-  var bufferL = mergeBuffers(recBuffersL, recLength);
-  var bufferR = mergeBuffers(recBuffersR, recLength);
-  var interleaved = interleave(bufferL, bufferR);
+  var interleaved = mergeBuffers(recBuffers, recLength);
   var dataview = encodeWAV(interleaved);
   var audioBlob = new Blob([dataview], { type: type });
 
@@ -203,37 +199,39 @@ function exportWAV(type){
 }
 
 function exportRAW(type){
-  var bufferL = mergeBuffers(recBuffersL, recLength);
-  var bufferR = mergeBuffers(recBuffersR, recLength);
-  var interleaved = interleave(bufferL, bufferR);
-  var dataview = encodeRAW(interleaved);
+  var buffer = mergeBuffers(recBuffers, recLength);  
+  var dataview = encodeRAW(buffer);
   var audioBlob = new Blob([dataview], { type: type });
 
   this.postMessage(audioBlob);
 }
 
 function export16kMono(type){
-  var bufferL = mergeBuffers(recBuffersL, recLength);
-  var bufferR = mergeBuffers(recBuffersR, recLength);
-  var mixed = mix(bufferL, bufferR);
-  var samples = resampler.resampler(mixed);
+  var buffer = mergeBuffers(recBuffers, recLength);
+  var samples = resampler.resampler(buffer);
   var dataview = encodeRAW(samples);
   var audioBlob = new Blob([dataview], { type: type });
 
   this.postMessage(audioBlob);
 }
 
+// FIXME: doesn't work yet
+function exportSpeex(type){
+  var buffer = mergeBuffers(recBuffers, recLength);
+  var speexData = Speex.process(buffer);
+  var audioBlob = new Blob([speexData], { type: type });
+  this.postMessage(audioBlob);  
+}
+
 function getBuffer() {
   var buffers = [];
-  buffers.push( mergeBuffers(recBuffersL, recLength) );
-  buffers.push( mergeBuffers(recBuffersR, recLength) );
+  buffers.push( mergeBuffers(recBuffers, recLength) );
   this.postMessage(buffers);
 }
 
 function clear(){
   recLength = 0;
-  recBuffersL = [];
-  recBuffersR = [];
+  recBuffers = [];
 }
 
 function mergeBuffers(recBuffers, recLength){

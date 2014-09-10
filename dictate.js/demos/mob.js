@@ -11,6 +11,47 @@ var isConnected = false;
 
 var tt = new Transcription();
 
+var startPosition = 0;
+var endPosition = 0;
+var doUpper = false;
+var doPrependSpace = true;
+
+function capitaliseFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function prettyfyHyp(text, doCapFirst, doPrependSpace) {
+	if (doCapFirst) {
+		text = capitaliseFirstLetter(text);
+	}
+	tokens = text.split(" ");
+	text = "";
+	if (doPrependSpace) {
+		text = " ";
+	}
+	doCapitalizeNext = false;
+	tokens.map(function(token) {
+		if (text.trim().length > 0) {
+			text = text + " ";
+		}
+		if (doCapitalizeNext) {
+			text = text + capitaliseFirstLetter(token);
+		} else {
+			text = text + token;
+		}
+		if (token == "." ||  /\n$/.test(token)) {							
+			doCapitalizeNext = true;
+		} else {
+			doCapitalizeNext = false;
+		}						
+	});
+	
+	text = text.replace(/ ([,.!?:;])/g,  "\$1");
+	text = text.replace(/ ?\n ?/g,  "\n");
+	return text;
+}	
+
+
 var dictate = new Dictate({
 		server : $("#servers").val().split('|')[0],
 		serverStatus : $("#servers").val().split('|')[1],
@@ -22,6 +63,15 @@ var dictate = new Dictate({
 			$("#buttonToggleListening").addClass('highlight');
 			$("#buttonToggleListening").prop("disabled", false);
 			$("#buttonCancel").prop("disabled", false);
+			startPosition = $("#trans").prop("selectionStart");
+			endPosition = startPosition;
+			var textBeforeCaret = $("#trans").val().slice(0, startPosition);
+			if ((textBeforeCaret.length == 0) || /\. *$/.test(textBeforeCaret) ||  /\n *$/.test(textBeforeCaret)) {
+				doUpper = true;
+			} else {
+				doUpper = false;
+			}
+			doPrependSpace = (textBeforeCaret.length > 0) && !(/\n *$/.test(textBeforeCaret));
 		},
 		onEndOfSpeech : function() {
 			__message("END OF SPEECH");
@@ -48,12 +98,25 @@ var dictate = new Dictate({
 			}
 		},
 		onPartialResults : function(hypos) {
-			tt.add(hypos[0].transcript, false);
-			__updateTranscript(tt.toString());
+			hypText = prettyfyHyp(hypos[0].transcript, doUpper, doPrependSpace);
+			val = $("#trans").val();
+			$("#trans").val(val.slice(0, startPosition) + hypText + val.slice(endPosition));        
+			endPosition = startPosition + hypText.length;
+			$("#trans").prop("selectionStart", endPosition);
 		},
 		onResults : function(hypos) {
-			tt.add(hypos[0].transcript, true);
-			__updateTranscript(tt.toString());
+			hypText = prettyfyHyp(hypos[0].transcript, doUpper, doPrependSpace);
+			val = $("#trans").val();
+			$("#trans").val(val.slice(0, startPosition) + hypText + val.slice(endPosition));        
+			startPosition = startPosition + hypText.length;			
+			endPosition = startPosition;
+			$("#trans").prop("selectionStart", endPosition);
+			if (/\. *$/.test(hypText) ||  /\n *$/.test(hypText)) {
+				doUpper = true;
+			} else {
+				doUpper = false;
+			}
+			doPrependSpace = (hypText.length > 0) && !(/\n *$/.test(hypText));
 		},
 		onError : function(code, data) {
 			dictate.cancel();
@@ -95,9 +158,11 @@ function cancel() {
 	dictate.cancel();
 }
 
-function clearTranscription() {
-	tt = new Transcription();
+function clearTranscription() {	
 	$("#trans").val("");
+	// needed, otherwise selectionStart will retain its old value
+	$("#trans").prop("selectionStart", 0);	
+	$("#trans").prop("selectionEnd", 0);	
 }
 
 $(document).ready(function() {

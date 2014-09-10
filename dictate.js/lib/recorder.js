@@ -6,9 +6,7 @@
     var config = cfg || {};
     var bufferLen = config.bufferLen || 4096;
     this.context = source.context;
-    // bufferSize, numInputChannels, numOutputChannels
-    // TODO: make it: 1, 1
-    this.node = this.context.createJavaScriptNode(bufferLen, 2, 2);
+    this.node = this.context.createScriptProcessor(bufferLen, 1, 1);
     var worker = new Worker(config.workerPath || WORKER_PATH);
     worker.postMessage({
       command: 'init',
@@ -24,8 +22,7 @@
       worker.postMessage({
         command: 'record',
         buffer: [
-          e.inputBuffer.getChannelData(0),
-          e.inputBuffer.getChannelData(1)
+          e.inputBuffer.getChannelData(0)
         ]
       });
     }
@@ -81,6 +78,17 @@
       if (!currCallback) throw new Error('Callback not set');
       worker.postMessage({
         command: 'export16kMono',
+        type: type
+      });
+    }
+
+    // FIXME: doesn't work yet
+    this.exportSpeex = function(cb, type){
+      currCallback = cb || config.callback;
+      type = type || config.type || 'audio/speex';
+      if (!currCallback) throw new Error('Callback not set');
+      worker.postMessage({
+        command: 'exportSpeex',
         type: type
       });
     }
