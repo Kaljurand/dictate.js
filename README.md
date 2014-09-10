@@ -31,5 +31,5 @@ Browser support
 ---------------
 
 Known to work in
-  - Chromium 31.0.1650.63 on Ubuntu desktop
-  - Chrome Beta 32.0.1700.94 on Android
+  - Google Chrome 36.0.1985.125 on Ubuntu desktop
+  - Google Chrome 37.0.2062.117 on Android
