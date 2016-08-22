@@ -36,23 +36,15 @@
 		0: 'Success', // Usually used when recognition results are sent
 		1: 'No speech', // Incoming audio contained a large portion of silence or non-speech
 		2: 'Aborted', // Recognition was aborted for some reason
-		9: 'No available', // recognizer processes are currently in use and recognition cannot be performed
+		9: 'No available', // Recognizer processes are currently in use and recognition cannot be performed
 	};
-
-	// Initialized by init()
-	var audioContext;
-	var recorder;
-	// Initialized by startListening()
-	var ws;
-	var intervalKey;
-	// Initialized during construction
-	var wsServerStatus;
 
 	var Dictate = function(cfg) {
 		var config = cfg || {};
 		config.server = config.server || SERVER;
+		config.audioSourceId = config.audioSourceId;
 		config.serverStatus = config.serverStatus || SERVER_STATUS;
-		config.referenceHandler = config.referenceHandler || SERVER_STATUS;
+		config.referenceHandler = config.referenceHandler || REFERENCE_HANDLER;
 		config.contentType = config.contentType || CONTENT_TYPE;
 		config.interval = config.interval || INTERVAL;
 		config.recorderWorkerPath = config.recorderWorkerPath || RECORDER_WORKER_PATH;
@@ -63,11 +55,19 @@
 		config.onEndOfSession = config.onEndOfSession || function() {};
 		config.onEvent = config.onEvent || function(e, data) {};
 		config.onError = config.onError || function(e, data) {};
-		config.onServerStatus = config.onServerStatus || {};
 		config.rafCallback = config.rafCallback || function(time) {};
 		if (config.onServerStatus) {
 			monitorServerStatus();
 		}
+
+		// Initialized by init()
+		var audioContext;
+		var recorder;
+		// Initialized by startListening()
+		var ws;
+		var intervalKey;
+		// Initialized during construction
+		var wsServerStatus;
 
 		// Returns the configuration
 		this.getConfig = function() {
@@ -79,6 +79,7 @@
 		// Can be called multiple times.
 		// TODO: call something on success (MSG_INIT_RECORDER is currently called)
 		this.init = function() {
+			var audioSourceConstraints = {};
 			config.onEvent(MSG_WAITING_MICROPHONE, "Waiting for approval to access your microphone ...");
 			try {
 				window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -92,7 +93,14 @@
 			}
 
 			if (navigator.getUserMedia) {
-				navigator.getUserMedia({audio: true}, startUserMedia, function(e) {
+				if(config.audioSourceId) {
+					audioSourceConstraints.audio = {
+						optional: [{ sourceId: config.audioSourceId }]
+					};
+				} else {
+					audioSourceConstraints.audio = true;
+				}
+				navigator.getUserMedia(audioSourceConstraints, startUserMedia, function(e) {
 					config.onError(ERR_CLIENT, "No live audio input in this browser: " + e);
 				});
 			} else {
@@ -170,23 +178,25 @@
 			config.onEvent(MSG_SERVER_CHANGED, 'Server status server changed: ' + serverStatus);
 		}
 
-    // Sends reference text to speech server
-    this.submitReference = function submitReference(text) {
-      var headers = {}
-      if (config["user_id"]) {
-        headers["User-Id"] = config["user_id"]
-      }      
-      if (config["content_id"]) {
-        headers["Content-Id"] = config["content_id"]
-      }      
-      $.ajax({
-        url: config.referenceHandler,
-        type: "POST",
-        headers: headers,
-        data: text,
-        dataType: "text/plain"
-      });  
-    }
+		// Sends reference text to speech server
+		this.submitReference = function submitReference(text, successCallback, errorCallback) {
+			var headers = {}
+			if (config["user_id"]) {
+				headers["User-Id"] = config["user_id"]
+			}
+			if (config["content_id"]) {
+				headers["Content-Id"] = config["content_id"]
+			}
+			$.ajax({
+				url: config.referenceHandler,
+				type: "POST",
+				headers: headers,
+				data: text,
+				dataType: "text",
+				success: successCallback,
+				error: errorCallback,
+			});
+		}
 
 		// Private methods
 		function startUserMedia(stream) {
@@ -232,13 +242,13 @@
 		function createWebSocket() {
 			// TODO: do we need to use a protocol?
 			//var ws = new WebSocket("ws://127.0.0.1:8081", "echo-protocol");
-      var url = config.server + '?' + config.contentType;
-      if (config["user_id"]) {
-        url += '&user-id=' + config["user_id"]
-      }
-      if (config["content_id"]) {
-        url += '&content-id=' + config["content_id"]
-      }      
+			var url = config.server + '?' + config.contentType;
+			if (config["user_id"]) {
+				url += '&user-id=' + config["user_id"]
+			}
+			if (config["content_id"]) {
+				url += '&content-id=' + config["content_id"]
+			}
 			var ws = new WebSocket(url);
 
 			ws.onmessage = function(e) {
@@ -251,10 +261,12 @@
 				} else {
 					var res = JSON.parse(data);
 					if (res.status == 0) {
-						if (res.result.final) {
-							config.onResults(res.result.hypotheses);
-						} else {
-							config.onPartialResults(res.result.hypotheses);
+						if (res.result) {
+							if (res.result.final) {
+								config.onResults(res.result.hypotheses);
+							} else {
+								config.onPartialResults(res.result.hypotheses);
+							}
 						}
 					} else {
 						config.onError(ERR_SERVER, 'Server error: ' + res.status + ': ' + getDescription(res.status));
@@ -318,8 +330,6 @@
 			}
 			return "Unknown error";
 		}
-    
-
 
 	};
 
