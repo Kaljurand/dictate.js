@@ -9,7 +9,7 @@ and a WebSocket connection to the
 API
 ---
 
-The API is modelled after [Android's SpeechRecognizer](http://developer.android.com/reference/android/speech/SpeechRecognizer.html).
+The API is modeled after [Android's SpeechRecognizer](http://developer.android.com/reference/android/speech/SpeechRecognizer.html).
 See the source code of [lib/dictate.js](lib/dictate.js) and
 the usage in [demos/demo.js](demos/demo.js).
 
@@ -31,11 +31,15 @@ and then open e.g. <http://localhost:8000/demos/mob.html>.
 Browser support
 ---------------
 
-Known to work in
-  - Google Chrome 52.0 on Ubuntu desktop
-  - Google Chrome 45.0 on Android 5.1
-  - Firefox 37.0.1 on Ubuntu desktop (unstable: often seems to lose connection to microphone)
-  - Firefox 41.0 on Android 5.1 (unstable: often seems to lose connection to microphone)
+Known to work in:
+
+- Google Chrome 52.0 on Ubuntu 16.04
+- Google Chrome 52.0 on Android 7.0
+- Firefox 48.0 on Ubuntu 16.04 (but switching the server breaks something)
+
+Known NOT to work in:
+
+- Firefox 48.0 on Android 7.0
 
 See also
 --------
