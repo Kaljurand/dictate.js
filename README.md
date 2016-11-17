@@ -33,13 +33,13 @@ Browser support
 
 Known to work in:
 
-- Google Chrome 52.0 on Ubuntu 16.04
-- Google Chrome 52.0 on Android 7.0
-- Firefox 48.0 on Ubuntu 16.04 (but switching the server breaks something)
+- Google Chrome 54.0 on Ubuntu 16.04
+- Firefox 49.0.2 on Ubuntu 16.04
+- Firefox 49.0.2 on Android 7.1.1
 
 Known NOT to work in:
 
-- Firefox 48.0 on Android 7.0
+- Google Chrome 54.0 on Android 7.1.1
 
 See also
 --------
