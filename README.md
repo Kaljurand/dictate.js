@@ -37,13 +37,7 @@ Browser support
 
 Known to work in:
 
-- Google Chrome 54.0 on Ubuntu 16.04
-- Firefox 49.0.2 on Ubuntu 16.04
-- Firefox 49.0.2 on Android 7.1.1
-
-Known NOT to work in:
-
-- Google Chrome 54.0 on Android 7.1.1
+- Google Chrome 72.0 on Ubuntu 18.04
 
 See also
 --------
