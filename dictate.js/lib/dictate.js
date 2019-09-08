@@ -29,6 +29,7 @@
 	var MSG_WEB_SOCKET_CLOSE = 10;
 	var MSG_STOP = 11;
 	var MSG_SERVER_CHANGED = 12;
+	var MSG_AUDIOCONTEXT_RESUMED = 13;
 
 	// Server status codes
 	// from https://github.com/alumae/kaldi-gstreamer-server
@@ -121,6 +122,9 @@
 
 			try {
 				ws = createWebSocket();
+				audioContext.resume().then(() => {
+					config.onEvent(MSG_AUDIOCONTEXT_RESUMED, "Audio context resumed");
+				});
 			} catch (e) {
 				config.onError(ERR_CLIENT, "No web socket support in this browser!");
 			}
