@@ -38,6 +38,9 @@ Browser support
 Known to work in:
 
 - Google Chrome 72.0 on Ubuntu 18.04
+- Mozilla Firefox 68.0.2 on Ubuntu 18.04
+- Chrome 76 on Android 10
+- Opera 53.0 on Android 10
 
 See also
 --------
