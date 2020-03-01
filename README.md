@@ -33,10 +33,14 @@ Browser support
 
 Known to work in:
 
-- Google Chrome 72.0 on Ubuntu 18.04
-- Mozilla Firefox 68.0.2 on Ubuntu 18.04
-- Chrome 76 on Android 10
-- Opera 53.0 on Android 10
+- Mozilla Firefox 73.0.1 on Ubuntu 19.10
+- Chrome 80 on Android 10
+- Opera 56.1 on Android 10
+- various iOS and Windows devices (see https://github.com/Kaljurand/dictate.js/pull/27)
+
+Issues:
+
+- Google Chrome 81.0 on Ubuntu 19.10 (``WebSocket connection to 'wss://...' failed: Error in connection establishment: net::ERR_SSL_OBSOLETE_VERSION``)
 
 See also
 --------
