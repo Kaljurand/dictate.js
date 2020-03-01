@@ -24,13 +24,9 @@ The demos are available [here](https://kaljurand.github.io/dictate.js/).
 
 To run the demos on localhost, start a local HTTP server, e.g.:
 
-    # Python 2
-    python -m SimpleHTTPServer
+    python3 -m http.server 8081
 
-    # Python 3
-    python -m http.server
-
-and then open e.g. <http://localhost:8000/demos/mob.html>.
+and then open e.g. <http://localhost:8081/demos/mob.html>.
 
 Browser support
 ---------------
