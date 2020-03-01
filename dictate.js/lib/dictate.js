@@ -84,28 +84,41 @@
 			config.onEvent(MSG_WAITING_MICROPHONE, "Waiting for approval to access your microphone ...");
 			try {
 				window.AudioContext = window.AudioContext || window.webkitAudioContext;
-				navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+				navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia || navigator.mediaDevices.webkitGetUserMedia || navigator.mediaDevices.mozGetUserMedia;
 				window.URL = window.URL || window.webkitURL;
 				audioContext = new AudioContext();
+
+				if (navigator.mediaDevices.getUserMedia){
+					if(config.audioSourceId) {
+						audioSourceConstraints.audio = {
+							optional: [{ sourceId: config.audioSourceId }]
+						};
+					} else {
+						audioSourceConstraints.audio = true;
+					}
+					navigator.mediaDevices.getUserMedia(audioSourceConstraints).then(function(stream){
+						/* use the stream */
+						input = audioContext.createMediaStreamSource(stream);
+						config.onEvent(MSG_MEDIA_STREAM_CREATED, 'Media stream created');
+									//Firefox loses the audio input stream every five seconds
+									// To fix added the input to window.source
+									window.source = input;
+						window.userSpeechAnalyser = audioContext.createAnalyser();
+						input.connect(window.userSpeechAnalyser);
+
+						config.rafCallback();
+
+						recorder = new Recorder(input, { workerPath : config.recorderWorkerPath });
+						config.onEvent(MSG_INIT_RECORDER, 'Recorder initialized');
+					});
+				} else {
+					config.onError(ERR_CLIENT, "No user media support");
+				}
+
 			} catch (e) {
 				// Firefox 24: TypeError: AudioContext is not a constructor
 				// Set media.webaudio.enabled = true (in about:config) to fix this.
 				config.onError(ERR_CLIENT, "Error initializing Web Audio browser: " + e);
-			}
-
-			if (navigator.getUserMedia) {
-				if(config.audioSourceId) {
-					audioSourceConstraints.audio = {
-						optional: [{ sourceId: config.audioSourceId }]
-					};
-				} else {
-					audioSourceConstraints.audio = true;
-				}
-				navigator.getUserMedia(audioSourceConstraints, startUserMedia, function(e) {
-					config.onError(ERR_CLIENT, "No live audio input in this browser: " + e);
-				});
-			} else {
-				config.onError(ERR_CLIENT, "No user media support");
 			}
 		}
 
@@ -203,23 +216,6 @@
 		}
 
 		// Private methods
-		function startUserMedia(stream) {
-			var input = audioContext.createMediaStreamSource(stream);
-			config.onEvent(MSG_MEDIA_STREAM_CREATED, 'Media stream created');
-                        //Firefox loses the audio input stream every five seconds
-                        // To fix added the input to window.source
-                        window.source = input;
-                        
-			// make the analyser available in window context
-			window.userSpeechAnalyser = audioContext.createAnalyser();
-			input.connect(window.userSpeechAnalyser);
-
-			config.rafCallback();
-
-			recorder = new Recorder(input, { workerPath : config.recorderWorkerPath });
-			config.onEvent(MSG_INIT_RECORDER, 'Recorder initialized');
-		}
-
 		function socketSend(item) {
 			if (ws) {
 				var state = ws.readyState;
